@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 logger.debug("[AUTH] - Bearer String not found in token");
             }
         }
-        if (null != username) {
+        if (username != null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (tokenManager.validateJwtToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken

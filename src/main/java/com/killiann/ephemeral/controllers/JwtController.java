@@ -57,7 +57,7 @@ public class JwtController {
         UserModel userByName = userRepository.findByUsername(newUser.getUsername());
         UserModel userByEmail = userRepository.findByEmail(newUser.getEmail());
 
-        if(userByName != null && userByEmail != null) {
+        if(userByName != null || userByEmail != null) {
             throw new Exception("USER_ALREADY_EXISTS");
         }
 

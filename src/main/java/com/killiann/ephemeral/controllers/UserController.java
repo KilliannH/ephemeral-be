@@ -28,20 +28,15 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @PostMapping("/users")
-    UserModel newUser(@RequestBody UserModel newUserModel) {
-        return userRepository.save(newUserModel);
-    }
-
     @GetMapping("/users/{id}")
-    UserModel one(@PathVariable String id) {
+    UserModel one(@PathVariable Long id) {
 
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @PutMapping("/users/{id}")
-    UserModel replaceUser(@RequestBody UserModel newUserModel, @PathVariable String id) {
+    UserModel replaceUser(@RequestBody UserModel newUserModel, @PathVariable Long id) {
 
         return userRepository.findById(id)
                 .map(userModel -> {
@@ -55,7 +50,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    void deleteUser(@PathVariable String id) {
+    void deleteUser(@PathVariable Long id) {
         userRepository.deleteById(id);
     }
 

@@ -10,6 +10,7 @@ public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String facebookId;
     private String username;
     private String email;
     private String password;
@@ -17,8 +18,9 @@ public class UserModel {
 
     public UserModel() {}
 
-    public UserModel(String username, String email, String password, String role) {
+    public UserModel(String username, String facebookId, String email, String password, String role) {
         this.username = username;
+        this.facebookId = facebookId;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -28,8 +30,11 @@ public class UserModel {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getFacebookId() {
+        return facebookId;
+    }
+    public String setFacebookId(String facebookId) {
+        return this.facebookId;
     }
 
     public String getUsername() {
@@ -68,6 +73,7 @@ public class UserModel {
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
+                "facebookId='" + facebookId + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

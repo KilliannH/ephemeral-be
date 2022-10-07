@@ -2,10 +2,10 @@ package com.killiann.ephemeral.controllers;
 
 import com.killiann.ephemeral.jwtutils.JwtUserDetailsService;
 import com.killiann.ephemeral.jwtutils.TokenManager;
+import com.killiann.ephemeral.models.TempModel;
 import com.killiann.ephemeral.repositories.UserRepository;
 import com.killiann.ephemeral.models.JwtRequestModel;
 import com.killiann.ephemeral.models.JwtResponseModel;
-import com.killiann.ephemeral.models.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ResourceBundle;
+
 @RestController
 @CrossOrigin
 public class JwtController {
@@ -51,8 +53,10 @@ public class JwtController {
         return ResponseEntity.ok(new JwtResponseModel(jwtToken));
     }
     @PostMapping("/authenticate")
-    public ResponseEntity signIn(@RequestBody UserModel newUser) throws Exception {
-
+    public ResponseEntity signIn(@RequestBody TempModel response) throws Exception {
+        String subject = tokenManager.getSubjectFromToken(response.accessToken);
+        return ResponseEntity.ok(subject);
+        /*
         // check if user not exists
         UserModel userByName = userRepository.findByUsername(newUser.getUsername());
         UserModel userByEmail = userRepository.findByEmail(newUser.getEmail());
@@ -70,6 +74,6 @@ public class JwtController {
 
         // save it in db
         userRepository.save(newUser);
-        return ResponseEntity.ok(new JwtResponseModel(jwtToken));
+        return ResponseEntity.ok(new JwtResponseModel(jwtToken)); */
     }
 }

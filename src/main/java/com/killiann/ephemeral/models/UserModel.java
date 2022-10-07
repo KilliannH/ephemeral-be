@@ -13,16 +13,14 @@ public class UserModel {
     private String facebookId;
     private String username;
     private String email;
-    private String password;
     private String role;
 
     public UserModel() {}
 
-    public UserModel(String username, String facebookId, String email, String password, String role) {
+    public UserModel(String username, String facebookId, String email, String role) {
         this.username = username;
         this.facebookId = facebookId;
         this.email = email;
-        this.password = password;
         this.role = role;
     }
 
@@ -33,8 +31,9 @@ public class UserModel {
     public String getFacebookId() {
         return facebookId;
     }
-    public String setFacebookId(String facebookId) {
-        return this.facebookId;
+
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
     }
 
     public String getUsername() {
@@ -53,14 +52,6 @@ public class UserModel {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getRole() {
         return role;
     }
@@ -76,7 +67,6 @@ public class UserModel {
                 "facebookId='" + facebookId + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
     }

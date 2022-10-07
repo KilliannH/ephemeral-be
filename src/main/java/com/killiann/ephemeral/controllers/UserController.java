@@ -48,7 +48,6 @@ public class UserController {
                     userModel.setUsername(newUserModel.getUsername());
                     userModel.setFacebookId(newUserModel.getFacebookId());
                     userModel.setEmail(newUserModel.getEmail());
-                    userModel.setPassword(newUserModel.getPassword());
                     userModel.setRole(newUserModel.getRole());
                     return userRepository.save(userModel);
                 })

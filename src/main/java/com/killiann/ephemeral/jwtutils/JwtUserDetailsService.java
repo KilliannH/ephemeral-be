@@ -10,22 +10,32 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
+
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
 
+    public UserDetails loadUserByFacebookId(String facebookId) throws UsernameNotFoundException {
+        Optional<UserModel> user = userRepository.findByFacebookId(facebookId);
+        if (!user.isPresent()) {
+            throw new UsernameNotFoundException("User not found with facebookId: " + facebookId);
+        }
+        return new User(user.get().getUsername(), "", new ArrayList<>());
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserModel user = userRepository.findByUsername(username);
-        if (user == null) {
+        Optional<UserModel> user = userRepository.findByUsername(username);
+        if (!user.isPresent()) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        return new User(user.getUsername(), user.getPassword(), new ArrayList<>());
+        return new User(user.get().getUsername(), "", new ArrayList<>());
     }
 
     public UserDetails loadNewUser(UserModel newUser) {
-        return new User(newUser.getUsername(), newUser.getPassword(), new ArrayList<>());
+        return new User(newUser.getUsername(), "", new ArrayList<>());
     }
 }

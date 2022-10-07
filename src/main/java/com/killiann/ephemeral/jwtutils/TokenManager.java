@@ -19,7 +19,7 @@ public class TokenManager implements Serializable {
 
     @Id
     private long serialVersionUID;
-    public static final long TOKEN_VALIDITY = 90 * 60 * 60; // 90 min
+    public static final long TOKEN_VALIDITY = 72 * 60 * 60; // 72h
     ResourceBundle rb = ResourceBundle.getBundle("config");
     private final String jwtSecret = rb.getString("token.secret");
     public String generateJwtToken(UserDetails userDetails) {

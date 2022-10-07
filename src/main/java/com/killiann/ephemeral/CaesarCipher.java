@@ -1,9 +1,11 @@
 package com.killiann.ephemeral;
 
+import java.nio.charset.StandardCharsets;
+
 public class CaesarCipher
     {
         // Encrypts text using a shift od s
-        public static StringBuffer encrypt(String text, int s) {
+        public static String encrypt(String text, int s) {
             StringBuffer result = new StringBuffer();
 
             for (int i = 0; i < text.length(); i++) {
@@ -12,12 +14,14 @@ public class CaesarCipher
                 result.append(ch);
             }
 
-            return result;
+            return result.toString();
         }
 
 
-        public static StringBuffer decrypt(StringBuffer text, int s)
+        public static String decrypt(String txt, int s)
         {
+            StringBuffer text = new StringBuffer();
+            text.append(txt);
             StringBuffer result= new StringBuffer();
 
             for (int i = 0; i < text.length(); i++) {
@@ -26,18 +30,6 @@ public class CaesarCipher
                 result.append(ch);
             }
 
-            return result;
-        }
-
-        // Driver code
-        public static void main(String[] args)
-        {
-            String text = "5448576911832339";
-            int s = 4;
-            System.out.println("Text  : " + text);
-            System.out.println("Shift : " + s);
-            StringBuffer encrypt = encrypt(text, s);
-            System.out.println("Cipher: " + encrypt);
-            System.out.println("Original: " + decrypt(encrypt, s));
+            return result.toString();
         }
 }

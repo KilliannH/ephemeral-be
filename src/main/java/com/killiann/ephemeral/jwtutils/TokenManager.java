@@ -31,18 +31,12 @@ public class TokenManager implements Serializable {
                 .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
     }
     public Boolean validateJwtToken(String token, UserDetails userDetails) {
-        String username = getUsernameFromToken(token);
+        String username = getClaimsFromToken(token).getSubject();
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         Boolean isTokenExpired = claims.getExpiration().before(new Date());
         return (username.equals(userDetails.getUsername()) && !isTokenExpired);
     }
-    public String getUsernameFromToken(String token) {
-        final Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        return claims.getSubject();
-    }
-
-    public String getSubjectFromToken(String token) {
-        final Claims claims = Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
-        return claims.getSubject();
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token).getBody();
     }
 }

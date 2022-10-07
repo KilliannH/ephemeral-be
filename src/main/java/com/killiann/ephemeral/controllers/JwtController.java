@@ -1,26 +1,26 @@
 package com.killiann.ephemeral.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.killiann.ephemeral.CaesarCipher;
 import com.killiann.ephemeral.jwtutils.JwtUserDetailsService;
 import com.killiann.ephemeral.jwtutils.TokenManager;
+import com.killiann.ephemeral.models.FbAuthResponse;
 import com.killiann.ephemeral.models.TempModel;
 import com.killiann.ephemeral.repositories.UserRepository;
-import com.killiann.ephemeral.models.JwtRequestModel;
-import com.killiann.ephemeral.models.JwtResponseModel;
+import com.killiann.ephemeral.models.JwtModel;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ResourceBundle;
 
 @RestController
 @CrossOrigin
@@ -34,28 +34,27 @@ public class JwtController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private TokenManager tokenManager;
-    @PostMapping("/login")
-    public ResponseEntity createToken(@RequestBody JwtRequestModel request) throws Exception {
-        logger.debug("[AUTH] - username: " + request.getUsername() + ", password: " + request.getPassword());
-        try {
-            authenticationManager.authenticate(
-                    new
-                            UsernamePasswordAuthenticationToken(request.getUsername(),
-                            request.getPassword())
-            );
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-        final String jwtToken = tokenManager.generateJwtToken(userDetails);
-        return ResponseEntity.ok(new JwtResponseModel(jwtToken));
-    }
+
     @PostMapping("/authenticate")
     public ResponseEntity signIn(@RequestBody TempModel response) throws Exception {
-        String subject = tokenManager.getSubjectFromToken(response.accessToken);
-        return ResponseEntity.ok(subject);
+        Claims claims = null;
+        FbAuthResponse fbAuthResponse = null;
+        try {
+            claims = tokenManager.getClaimsFromToken(response.accessToken);
+        } catch (RuntimeException ex) {
+            throw new RuntimeException(ex);
+        }
+        if(claims != null) {
+            String issuer = claims.getIssuer();
+            if(!issuer.equals("Ephemeral")) {
+                throw new Error("Unrecognized token");
+            }
+            Gson g = new Gson();
+            fbAuthResponse = g.fromJson(claims.getSubject(), FbAuthResponse.class);
+            String decodedFacebookId = CaesarCipher.decrypt(fbAuthResponse.getFacebookId(), 4);
+            fbAuthResponse.setFacebookId(decodedFacebookId);
+        }
+        return ResponseEntity.ok(fbAuthResponse);
         /*
         // check if user not exists
         UserModel userByName = userRepository.findByUsername(newUser.getUsername());

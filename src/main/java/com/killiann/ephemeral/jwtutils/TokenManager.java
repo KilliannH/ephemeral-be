@@ -22,8 +22,9 @@ public class TokenManager implements Serializable {
     public static final long TOKEN_VALIDITY = 72 * 60 * 60; // 72h
     ResourceBundle rb = ResourceBundle.getBundle("config");
     private final String jwtSecret = rb.getString("token.secret");
-    public String generateJwtToken(UserDetails userDetails) {
+    public String generateJwtToken(UserDetails userDetails, String facebookId) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("facebookId", facebookId);
         return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
                 .setHeaderParam("typ", "JWT")
                 .setIssuedAt(new Date(System.currentTimeMillis()))

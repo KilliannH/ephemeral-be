@@ -128,7 +128,7 @@ public class JwtController {
                 }
 
                 if(userDetails != null) {
-                    jwtToken = tokenManager.generateJwtToken(userDetails);
+                    jwtToken = tokenManager.generateJwtToken(userDetails, connUser.getFacebookId());
                 }
                 return ResponseEntity.ok(new JwtResponseModel(jwtToken, connUser));
             }

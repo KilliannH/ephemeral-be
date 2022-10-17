@@ -31,7 +31,7 @@ public class FbUtils {
         con.setRequestProperty("Content-Type", "application/json");
 
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("fields", "id,name");
+        parameters.put("fields", "id,name,email,picture");
         parameters.put("access_token", accessToken);
 
         con.setDoOutput(true);

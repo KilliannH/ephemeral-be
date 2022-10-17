@@ -13,14 +13,17 @@ public class UserModel {
     private String facebookId;
     private String username;
     private String email;
+
+    private String imageUrl;
     private String role;
 
     public UserModel() {}
 
-    public UserModel(String username, String facebookId, String email, String role) {
+    public UserModel(String username, String facebookId, String email, String imageUrl, String role) {
         this.username = username;
         this.facebookId = facebookId;
         this.email = email;
+        this.imageUrl = imageUrl;
         this.role = role;
     }
 
@@ -52,6 +55,14 @@ public class UserModel {
         this.email = email;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public String getRole() {
         return role;
     }
@@ -67,6 +78,7 @@ public class UserModel {
                 "facebookId='" + facebookId + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", role='" + role + '\'' +
                 '}';
     }

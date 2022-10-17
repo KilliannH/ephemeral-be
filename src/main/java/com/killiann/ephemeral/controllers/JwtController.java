@@ -1,6 +1,7 @@
 package com.killiann.ephemeral.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.killiann.ephemeral.helpers.CaesarCipher;
 import com.killiann.ephemeral.helpers.FbUtils;
 import com.killiann.ephemeral.jwtutils.JwtUserDetailsService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -38,15 +40,15 @@ public class JwtController {
     private TokenManager tokenManager;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<JwtModel> signIn(@RequestBody TempModel response) throws IOException {
+    public ResponseEntity<JwtResponseModel> signIn(@RequestBody TempModel response) throws IOException {
         Optional<Claims> optClaims = Optional.empty();
-        Optional<JwtModel> optJwtModel = Optional.empty();
+        Optional<JwtResponseModel> optJwtResponseModel = Optional.empty();
         Optional<FbAuthResponse> optFbAuthResponse = Optional.empty();
         ResourceBundle rb = ResourceBundle.getBundle("config");
         final String appName = rb.getString("application.name");
         String jwtToken = null;
 
-        optClaims = Optional.ofNullable(tokenManager.getClaimsFromToken(response.accessToken));
+        optClaims = Optional.ofNullable(tokenManager.getClaimsFromToken(response.accessToken, true));
 
         if(optClaims.isPresent()) {
             Claims claims = optClaims.get();
@@ -66,39 +68,71 @@ public class JwtController {
 
                 // check if user exists
                 Optional<UserModel> userByFacebookId = userRepository.findByFacebookId(fbAuthResponse.getFacebookId());
+                UserModel connUser = null;
                 UserDetails userDetails = null;
 
                 if(userByFacebookId.isPresent()) {
                     userDetails = userDetailsService.loadUserByFacebookId(fbAuthResponse.getFacebookId());
-                    UserModel connUser = userByFacebookId.get();
+                    connUser = userByFacebookId.get();
                     if(optFbUserInfoResponse.isPresent()) {
                         FbUserInfoResponse fbUserInfoResponse = optFbUserInfoResponse.get();
+                        JsonObject pictureData = fbUserInfoResponse.picture.getAsJsonObject("data");
+                        String imageUrl = pictureData.get("url").getAsString();
+
+                        HashMap<String, String> toUpdate = new HashMap<>();
+
+                        if(!Objects.equals(connUser.getImageUrl(), imageUrl)) {
+                            toUpdate.put("imageUrl", imageUrl);
+                        }
+
                         if(!Objects.equals(connUser.getUsername(), fbUserInfoResponse.name)) {
-                            // fb doesn't return same name from the API, so we update it.
-                            connUser.setUsername(fbUserInfoResponse.name);
+                            toUpdate.put("name", fbUserInfoResponse.name);
+                        }
+
+                        if(!Objects.equals(connUser.getEmail(), fbUserInfoResponse.email)) {
+                            toUpdate.put("email", fbUserInfoResponse.email);
+                        }
+
+                        if(!toUpdate.isEmpty()) {
+                            // update what is needed to update
+                            if(toUpdate.containsKey("name")) {
+                                connUser.setUsername(toUpdate.get("name"));
+                            }
+                            if(toUpdate.containsKey("email")) {
+                                connUser.setEmail(toUpdate.get("email"));
+                            }
+                            if(toUpdate.containsKey("imageUrl")) {
+                                connUser.setImageUrl(toUpdate.get("imageUrl"));
+                            }
                             userRepository.save(connUser);
                         }
                     }
                 } else {
                     // a new user is created
-                    UserModel newUser = new UserModel();
+                    connUser = new UserModel();
                     if(optFbUserInfoResponse.isPresent()) {
                         FbUserInfoResponse userInfoResponse = optFbUserInfoResponse.get();
-                        newUser.setFacebookId(fbAuthResponse.getFacebookId());
-                        newUser.setUsername(userInfoResponse.name);
-                        userDetails = userDetailsService.loadNewUser(newUser);
+                        connUser.setFacebookId(fbAuthResponse.getFacebookId());
+                        connUser.setUsername(userInfoResponse.name);
+                        connUser.setRole("user");
+                        connUser.setEmail(userInfoResponse.email);
+                        JsonObject pictureData = userInfoResponse.picture.getAsJsonObject("data");
+                        String imageUrl = pictureData.get("url").getAsString();
+                        connUser.setImageUrl(imageUrl);
+
+                        userDetails = userDetailsService.loadNewUser(connUser);
 
                         // save it
-                        userRepository.save(newUser);
+                        userRepository.save(connUser);
                     }
                 }
 
                 if(userDetails != null) {
                     jwtToken = tokenManager.generateJwtToken(userDetails);
                 }
-                return ResponseEntity.ok(new JwtModel(jwtToken));
+                return ResponseEntity.ok(new JwtResponseModel(jwtToken, connUser));
             }
         }
-        return ResponseEntity.of(optJwtModel);
+        return ResponseEntity.of(optJwtResponseModel);
     }
 }

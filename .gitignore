@@ -1,5 +1,4 @@
 application.properties
-config.properties
 
 HELP.md
 target/
@@ -34,3 +33,4 @@ build/
 
 ### VS Code ###
 .vscode/
+.dockerignore

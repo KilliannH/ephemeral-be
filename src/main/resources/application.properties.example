@@ -7,3 +7,8 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 spring.datasource.username=root
 spring.datasource.password=root
 spring.jpa.hibernate.ddl-auto=update
+
+#custom properties
+token.secret=secret
+application.name=appName
+facebook.apiVersion=v1.0

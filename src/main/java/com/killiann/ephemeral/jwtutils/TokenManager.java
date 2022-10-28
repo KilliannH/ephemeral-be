@@ -3,6 +3,7 @@ package com.killiann.ephemeral.jwtutils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -13,15 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 @Component
 public class TokenManager implements Serializable {
 
     @Id
     private long serialVersionUID;
     public static final long TOKEN_VALIDITY = 72 * 60 * 60; // 72h
-    ResourceBundle rb = ResourceBundle.getBundle("config");
-    private final String jwtSecret = rb.getString("token.secret");
+    @Value("${token.secret}")
+    private String jwtSecret;
     public String generateJwtToken(UserDetails userDetails, String facebookId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("facebookId", facebookId);

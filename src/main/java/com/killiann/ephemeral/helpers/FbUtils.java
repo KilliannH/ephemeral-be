@@ -3,6 +3,7 @@ package com.killiann.ephemeral.helpers;
 import com.google.gson.Gson;
 import com.killiann.ephemeral.models.FbAuthResponse;
 import com.killiann.ephemeral.models.FbUserInfoResponse;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,17 +12,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class FbUtils {
 
     private static final String baseUrl = "https://graph.facebook.com/";
         // v14.0/me?fields=id%2Cname&access_token=EAASNWL6vRmsBAFzAmZCvTDLKU4vNZCZC0aL17HIfMumxjbPLNc46LdKzmG78pubWIhBRgJp8TUXWwmZCiSBRFU4WeFZCRJRzeJOhzq1riUPq0C5ctfNMmBb7qVZAkTmeZBiqw2lDVvO5bE8RbtXBfDzPO66k56x6fxZBVaplUQTmdNEcF3bsO4yADRLYqEtqCIgZD"
 
-    static ResourceBundle rb = ResourceBundle.getBundle("config");
-    private static final String apiVersion = rb.getString("facebook.apiVersion");
-
-    public static Optional<FbUserInfoResponse> getUserInfo(String accessToken) throws IOException {
+    public static Optional<FbUserInfoResponse> getUserInfo(String accessToken, String apiVersion) throws IOException {
 
         Optional<FbUserInfoResponse> optFbUserResponse = Optional.empty();
 

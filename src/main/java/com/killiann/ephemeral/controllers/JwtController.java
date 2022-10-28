@@ -12,6 +12,7 @@ import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 @RestController
 @CrossOrigin
@@ -39,13 +39,18 @@ public class JwtController {
     @Autowired
     private TokenManager tokenManager;
 
+    @Value("${application.name}")
+    private String appName;
+
+    @Value("${facebook.apiVersion}")
+    private String apiVersion;
+
     @PostMapping("/authenticate")
     public ResponseEntity<JwtResponseModel> signIn(@RequestBody TempModel response) throws IOException {
         Optional<Claims> optClaims = Optional.empty();
         Optional<JwtResponseModel> optJwtResponseModel = Optional.empty();
         Optional<FbAuthResponse> optFbAuthResponse = Optional.empty();
-        ResourceBundle rb = ResourceBundle.getBundle("config");
-        final String appName = rb.getString("application.name");
+
         String jwtToken = null;
 
         optClaims = Optional.ofNullable(tokenManager.getClaimsFromToken(response.accessToken, true));
@@ -64,7 +69,7 @@ public class JwtController {
                 fbAuthResponse.setFacebookId(decodedFacebookId);
 
                 // get his info from Facebook GraphQL
-                Optional<FbUserInfoResponse> optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken());
+                Optional<FbUserInfoResponse> optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken(), apiVersion);
 
                 // check if user exists
                 Optional<UserModel> userByFacebookId = userRepository.findByFacebookId(fbAuthResponse.getFacebookId());

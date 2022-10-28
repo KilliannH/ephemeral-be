@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class JwtResponseModel implements Serializable {
     public String token;
-    public UserModel userModel;
-    public JwtResponseModel(String token, UserModel userModel) {
+    public UserModel user;
+    public JwtResponseModel(String token, UserModel user) {
         this.token = token;
-        this.userModel = userModel;
+        this.user = user;
     }
 }

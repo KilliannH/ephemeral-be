@@ -1,8 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
-ARG EXTRACTED=/workspace/app/target/extracted
-COPY ${EXTRACTED}/dependencies/ ./
-COPY ${EXTRACTED}/spring-boot-loader/ ./
-COPY ${EXTRACTED}/snapshot-dependencies/ ./
-COPY ${EXTRACTED}/application/ ./
-ENTRYPOINT ["java","org.springframework.boot.loader.JarLauncher"]
+FROM openjdk:11
+MAINTAINER com.killiann
+COPY target/ephemeral-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]

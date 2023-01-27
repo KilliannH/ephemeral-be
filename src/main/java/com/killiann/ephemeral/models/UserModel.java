@@ -1,10 +1,10 @@
 package com.killiann.ephemeral.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-@Entity
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity(name = "user")
 public class UserModel {
 
     @Id
@@ -16,6 +16,12 @@ public class UserModel {
 
     private String imageUrl;
     private String role;
+
+    @OneToMany(mappedBy = "owner")
+    private Set<Event> ownedEvents = new HashSet<>();
+
+    @ManyToMany(mappedBy = "attendees")
+    private Set<Event> savedEvents = new HashSet<>();
 
     public UserModel() {}
 
@@ -69,6 +75,23 @@ public class UserModel {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+
+    public Set<Event> getOwnedEvents() {
+        return ownedEvents;
+    }
+
+    public void setOwnedEvents(Set<Event> ownedEvents) {
+        this.ownedEvents = ownedEvents;
+    }
+
+    public Set<Event> getSavedEvents() {
+        return savedEvents;
+    }
+
+    public void setSavedEvents(Set<Event> savedEvents) {
+        this.savedEvents = savedEvents;
     }
 
     @Override

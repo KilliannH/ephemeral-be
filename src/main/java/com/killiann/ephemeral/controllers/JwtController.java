@@ -86,6 +86,7 @@ public class JwtController {
 
                         HashMap<String, String> toUpdate = new HashMap<>();
 
+                        // TODO - handle this: this always true because facebook returns a new hash for every login
                         if(!Objects.equals(connUser.getImageUrl(), fbUserInfoResponse.imageUrl)) {
                             toUpdate.put("imageUrl", fbUserInfoResponse.imageUrl);
                         }

@@ -1,27 +1,27 @@
 package com.killiann.ephemeral.models;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Location {
+@Entity(name = "venue")
+public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long lng;
     private Long lat;
+    private String name;
     private String city;
     private String country;
 
-    @OneToMany(mappedBy = "events")
+    @OneToMany(mappedBy = "venue")
     private Set<Event> events = new HashSet<>();
 
-    public Location(Long lng, Long lat, String city, String country) {
+    public Venue(Long lng, Long lat, String name, String city, String country) {
         this.lng = lng;
         this.lat = lat;
+        this.name = name;
         this.city = city;
         this.country = country;
     }
@@ -46,6 +46,14 @@ public class Location {
         this.lat = lat;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getCity() {
         return city;
     }
@@ -68,5 +76,17 @@ public class Location {
 
     public void setEvents(Set<Event> events) {
         this.events = events;
+    }
+
+    @Override
+    public String toString() {
+        return "Venue{" +
+                "id=" + id +
+                ", lng=" + lng +
+                ", lat=" + lat +
+                ", name='" + name + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                '}';
     }
 }

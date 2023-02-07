@@ -1,13 +1,10 @@
 package com.killiann.ephemeral.helpers;
 
 import com.google.gson.Gson;
-import com.killiann.ephemeral.models.FbAuthResponse;
 import com.killiann.ephemeral.models.FbUserInfoResponse;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +25,7 @@ public class FbUtils {
         con.setRequestProperty("Content-Type", "application/json");
 
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("fields", "id,name,email,picture");
+        parameters.put("fields", "id,name,email,picture{url}");
         parameters.put("access_token", accessToken);
 
         con.setDoOutput(true);
@@ -36,7 +33,6 @@ public class FbUtils {
         out.writeBytes(ParameterStringBuilder.getParamsString(parameters));
         out.flush();
         out.close();
-
 
         con.setConnectTimeout(5000);
         con.setReadTimeout(5000);

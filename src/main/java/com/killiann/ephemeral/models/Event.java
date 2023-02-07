@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity(name = "event")
 public class Event {
 
@@ -17,21 +18,21 @@ public class Event {
     private String name;
 
     @ManyToOne()
-    @JoinColumn(name = "location", nullable = false)
-    private Location location;
+    @JoinColumn(name = "events", nullable = false)
+    private Venue venue;
     @ManyToOne()
     @JoinColumn(name="owner", nullable=false)
     private UserModel owner;
 
-    @ManyToMany(mappedBy = "events")
+    @ManyToMany(mappedBy = "savedEvents")
     private Set<UserModel> attendees = new HashSet<>();
 
     private Long dateTime;
 
-    public Event(String facebookId, String name, Location location, UserModel owner, Long dateTime) {
+    public Event(String facebookId, String name, Venue venue, UserModel owner, Long dateTime) {
         this.facebookId = facebookId;
         this.name = name;
-        this.location = location;
+        this.venue = venue;
         this.owner = owner;
         this.dateTime = dateTime;
     }
@@ -56,12 +57,12 @@ public class Event {
         this.name = name;
     }
 
-    public Location getLocation() {
-        return location;
+    public Venue getLocation() {
+        return venue;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLocation(Venue venue) {
+        this.venue = venue;
     }
 
     public UserModel getOwner() {
@@ -94,7 +95,7 @@ public class Event {
                 "id=" + id +
                 ", facebookId='" + facebookId + '\'' +
                 ", name='" + name + '\'' +
-                ", location='" + location.toString() + '\'' +
+                ", location='" + venue.toString() + '\'' +
                 ", owner=" + owner +
                 ", dateTime=" + dateTime +
                 '}';

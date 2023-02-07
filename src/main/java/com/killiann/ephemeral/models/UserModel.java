@@ -20,7 +20,11 @@ public class UserModel {
     @OneToMany(mappedBy = "owner")
     private Set<Event> ownedEvents = new HashSet<>();
 
-    @ManyToMany(mappedBy = "attendees")
+    @ManyToMany
+    @JoinTable(
+            name = "user_event",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> savedEvents = new HashSet<>();
 
     public UserModel() {}

@@ -45,9 +45,10 @@ public class JwtController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<JwtResponseModel> signIn(@RequestBody TempModel response) throws IOException {
-        Optional<Claims> optClaims = Optional.empty();
+        Optional<Claims> optClaims;
         Optional<JwtResponseModel> optJwtResponseModel = Optional.empty();
-        Optional<FbAuthResponse> optFbAuthResponse = Optional.empty();
+        Optional<FbAuthResponse> optFbAuthResponse;
+        Optional<FbUserInfoResponse> optFbUserInfoResponse = Optional.empty();
 
         String jwtToken = null;
 
@@ -63,29 +64,30 @@ public class JwtController {
             optFbAuthResponse = Optional.ofNullable(g.fromJson(claims.getSubject(), FbAuthResponse.class));
             if(optFbAuthResponse.isPresent()) {
                 FbAuthResponse fbAuthResponse = optFbAuthResponse.get();
+                // salts should not be hardcoded (4)
                 String decodedFacebookId = CaesarCipher.decrypt(fbAuthResponse.getFacebookId(), 4);
                 fbAuthResponse.setFacebookId(decodedFacebookId);
 
-                // get his info from Facebook GraphQL
-                Optional<FbUserInfoResponse> optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken(), apiVersion);
-
                 // check if user exists
                 Optional<UserModel> userByFacebookId = userRepository.findByFacebookId(fbAuthResponse.getFacebookId());
+
+                // get his info from Facebook GraphQL if doesn't exist
+                if(!userByFacebookId.isPresent()) {
+                    optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken(), apiVersion);
+                }
+                // check if user exists
                 UserModel connUser = null;
                 UserDetails userDetails = null;
 
                 if(userByFacebookId.isPresent()) {
                     userDetails = userDetailsService.loadUserByFacebookId(fbAuthResponse.getFacebookId());
                     connUser = userByFacebookId.get();
-                    if(optFbUserInfoResponse.isPresent()) {
-                        FbUserInfoResponse fbUserInfoResponse = optFbUserInfoResponse.get();
-                        JsonObject pictureData = fbUserInfoResponse.picture.getAsJsonObject("data");
-                        String imageUrl = pictureData.get("url").getAsString();
+                    FbUserInfoResponse fbUserInfoResponse = response.userInfos;
 
                         HashMap<String, String> toUpdate = new HashMap<>();
 
-                        if(!Objects.equals(connUser.getImageUrl(), imageUrl)) {
-                            toUpdate.put("imageUrl", imageUrl);
+                        if(!Objects.equals(connUser.getImageUrl(), fbUserInfoResponse.imageUrl)) {
+                            toUpdate.put("imageUrl", fbUserInfoResponse.imageUrl);
                         }
 
                         if(!Objects.equals(connUser.getUsername(), fbUserInfoResponse.name)) {
@@ -109,7 +111,6 @@ public class JwtController {
                             }
                             userRepository.save(connUser);
                         }
-                    }
                 } else {
                     // a new user is created
                     connUser = new UserModel();

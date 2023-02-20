@@ -13,7 +13,6 @@ public class UserModel {
     private String facebookId;
     private String username;
     private String email;
-
     private String imageUrl;
     private String role;
 
@@ -26,6 +25,16 @@ public class UserModel {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> savedEvents = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner")
+    private Set<Message> messages = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_conversation",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "conversation_id"))
+    private Set<Conversation> conversations = new HashSet<>();
 
     public UserModel() {}
 
@@ -96,6 +105,21 @@ public class UserModel {
 
     public void setSavedEvents(Set<Event> savedEvents) {
         this.savedEvents = savedEvents;
+    }
+
+    public Set<Message> getMessages() {
+        return messages;
+    }
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
+    }
+
+    public Set<Conversation> getConversations() {
+        return conversations;
+    }
+
+    public void setConversations(Set<Conversation> conversations) {
+        this.conversations = conversations;
     }
 
     @Override

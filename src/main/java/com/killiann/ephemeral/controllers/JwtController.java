@@ -71,7 +71,7 @@ public class JwtController {
                 // check if user exists
                 Optional<UserModel> userByFacebookId = userRepository.findByFacebookId(fbAuthResponse.getFacebookId());
 
-                // get his info from Facebook GraphQL if doesn't exist
+                // get his info from Facebook GraphQL if it doesn't exist
                 if(!userByFacebookId.isPresent()) {
                     optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken(), apiVersion);
                 }
@@ -86,8 +86,8 @@ public class JwtController {
 
                         HashMap<String, String> toUpdate = new HashMap<>();
 
-                        // TODO - handle this: this always true because facebook returns a new hash for every login
-                        if(!Objects.equals(connUser.getImageUrl(), fbUserInfoResponse.imageUrl)) {
+                    // TODO - handle this: this always true because facebook returns a new hash for every login
+                    if(!Objects.equals(connUser.getImageUrl(), fbUserInfoResponse.imageUrl)) {
                             toUpdate.put("imageUrl", fbUserInfoResponse.imageUrl);
                         }
 

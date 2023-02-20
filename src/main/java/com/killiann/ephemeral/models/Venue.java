@@ -12,16 +12,20 @@ public class Venue {
     private Long lng;
     private Long lat;
     private String name;
+    private String street;
     private String city;
     private String country;
 
     @OneToMany(mappedBy = "venue")
     private Set<Event> events = new HashSet<>();
 
-    public Venue(Long lng, Long lat, String name, String city, String country) {
+    /* Default constructor */
+    public Venue() {}
+    public Venue(Long lng, Long lat, String name, String street, String city, String country) {
         this.lng = lng;
         this.lat = lat;
         this.name = name;
+        this.street = street;
         this.city = city;
         this.country = country;
     }
@@ -52,6 +56,14 @@ public class Venue {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
     }
 
     public String getCity() {
@@ -85,6 +97,7 @@ public class Venue {
                 ", lng=" + lng +
                 ", lat=" + lat +
                 ", name='" + name + '\'' +
+                ", street='" + street + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 '}';

@@ -15,26 +15,34 @@ public class Event {
     private Long id;
     @NotNull
     private String facebookId;
+
     private String name;
 
     @ManyToOne()
     @JoinColumn(name = "events", nullable = false)
     private Venue venue;
+
     @ManyToOne()
     @JoinColumn(name="owner", nullable=false)
     private UserModel owner;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "event", referencedColumnName = "id")
+    private Conversation conversation;
+
     @ManyToMany(mappedBy = "savedEvents")
     private Set<UserModel> attendees = new HashSet<>();
 
-    private Long dateTime;
+    private Long occurDateTime;
 
-    public Event(String facebookId, String name, Venue venue, UserModel owner, Long dateTime) {
+    /* Default constructor */
+    public Event(){}
+    public Event(String facebookId, String name, Venue venue, UserModel owner, Long occurDateTime) {
         this.facebookId = facebookId;
         this.name = name;
         this.venue = venue;
         this.owner = owner;
-        this.dateTime = dateTime;
+        this.occurDateTime = occurDateTime;
     }
 
     public Long getId() {
@@ -73,12 +81,20 @@ public class Event {
         this.owner = owner;
     }
 
-    public Long getDateTime() {
-        return dateTime;
+    public Conversation getConversation() {
+        return conversation;
     }
 
-    public void setDateTime(Long dateTime) {
-        this.dateTime = dateTime;
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
+    }
+
+    public Long getOccurDateTime() {
+        return occurDateTime;
+    }
+
+    public void setOccurDateTime(Long occurDateTime) {
+        this.occurDateTime = occurDateTime;
     }
 
     public Set<UserModel> getAttendees() {
@@ -97,7 +113,7 @@ public class Event {
                 ", name='" + name + '\'' +
                 ", location='" + venue.toString() + '\'' +
                 ", owner=" + owner +
-                ", dateTime=" + dateTime +
+                ", occurDateTime=" + occurDateTime +
                 '}';
     }
 }

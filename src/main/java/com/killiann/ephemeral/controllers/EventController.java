@@ -33,10 +33,4 @@ public class EventController {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
     }
-
-    @GetMapping("/events/facebookId/{facebookId}")
-    Event one(@PathVariable String facebookId) {
-        return eventRepository.findByFacebookId(facebookId)
-                .orElseThrow(() -> new EventNotFoundException(facebookId));
-    }
 }

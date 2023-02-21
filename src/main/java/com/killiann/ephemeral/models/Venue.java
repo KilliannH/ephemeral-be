@@ -9,8 +9,8 @@ public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long lng;
-    private Long lat;
+    private Double lng;
+    private Double lat;
     private String name;
     private String street;
     private String city;
@@ -21,7 +21,7 @@ public class Venue {
 
     /* Default constructor */
     public Venue() {}
-    public Venue(Long lng, Long lat, String name, String street, String city, String country) {
+    public Venue(Double lng, Double lat, String name, String street, String city, String country) {
         this.lng = lng;
         this.lat = lat;
         this.name = name;
@@ -34,19 +34,19 @@ public class Venue {
         return id;
     }
 
-    public Long getLng() {
+    public Double getLng() {
         return lng;
     }
 
-    public void setLng(Long lng) {
+    public void setLng(Double lng) {
         this.lng = lng;
     }
 
-    public Long getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(Long lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
     }
 

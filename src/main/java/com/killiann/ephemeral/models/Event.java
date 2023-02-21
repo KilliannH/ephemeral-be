@@ -13,11 +13,8 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
-    private String facebookId;
-
     private String name;
-
+    private String imageUrl;
     @ManyToOne()
     @JoinColumn(name = "events", nullable = false)
     private Venue venue;
@@ -37,9 +34,9 @@ public class Event {
 
     /* Default constructor */
     public Event(){}
-    public Event(String facebookId, String name, Venue venue, UserModel owner, Long occurDateTime) {
-        this.facebookId = facebookId;
+    public Event(String name, String imageUrl, Venue venue, UserModel owner, Long occurDateTime) {
         this.name = name;
+        this.imageUrl = imageUrl;
         this.venue = venue;
         this.owner = owner;
         this.occurDateTime = occurDateTime;
@@ -49,12 +46,12 @@ public class Event {
         return id;
     }
 
-    public String getFacebookId() {
-        return facebookId;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setFacebookId(String facebookId) {
-        this.facebookId = facebookId;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -109,8 +106,8 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "id=" + id +
-                ", facebookId='" + facebookId + '\'' +
                 ", name='" + name + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", location='" + venue.toString() + '\'' +
                 ", owner=" + owner +
                 ", occurDateTime=" + occurDateTime +

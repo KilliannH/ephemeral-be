@@ -1,5 +1,7 @@
 package com.killiann.ephemeral.models;
 
+import net.bytebuddy.asm.Advice;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,23 +13,22 @@ public class Venue {
     private Long id;
     private Double lng;
     private Double lat;
+    private String address;
     private String name;
-    private String street;
-    private String city;
-    private String country;
+    @ManyToOne()
+    @JoinColumn(name = "venues", nullable = false)
+    private Location location;
 
     @OneToMany(mappedBy = "venue")
     private Set<Event> events = new HashSet<>();
 
     /* Default constructor */
     public Venue() {}
-    public Venue(Double lng, Double lat, String name, String street, String city, String country) {
+    public Venue(Double lng, Double lat, String address, String name) {
         this.lng = lng;
         this.lat = lat;
+        this.address = address;
         this.name = name;
-        this.street = street;
-        this.city = city;
-        this.country = country;
     }
 
     public Long getId() {
@@ -50,36 +51,20 @@ public class Venue {
         this.lat = lat;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public Set<Event> getEvents() {
@@ -90,16 +75,22 @@ public class Venue {
         this.events = events;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     @Override
     public String toString() {
         return "Venue{" +
                 "id=" + id +
                 ", lng=" + lng +
                 ", lat=" + lat +
+                ", address='" + address + '\'' +
                 ", name='" + name + '\'' +
-                ", street='" + street + '\'' +
-                ", city='" + city + '\'' +
-                ", country='" + country + '\'' +
                 '}';
     }
 }

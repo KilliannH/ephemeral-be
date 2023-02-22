@@ -36,6 +36,10 @@ public class UserModel {
             inverseJoinColumns = @JoinColumn(name = "conversation_id"))
     private Set<Conversation> conversations = new HashSet<>();
 
+    @ManyToOne()
+    @JoinColumn(name = "users")
+    private Location preferredLocation;
+
     public UserModel() {}
 
     public UserModel(String username, String facebookId, String email, String imageUrl, String role) {
@@ -120,6 +124,14 @@ public class UserModel {
 
     public void setConversations(Set<Conversation> conversations) {
         this.conversations = conversations;
+    }
+
+    public Location getPreferredLocation() {
+        return preferredLocation;
+    }
+
+    public void setPreferredLocation(Location preferredLocation) {
+        this.preferredLocation = preferredLocation;
     }
 
     @Override

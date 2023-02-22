@@ -7,10 +7,6 @@ import org.instancio.Instancio;
 import org.instancio.generators.Generators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static org.instancio.Select.field;
 
@@ -26,12 +22,10 @@ public class VenueFactory {
 
     public void generate() {
         Venue fakeVenue = Instancio.of(Venue.class)
-                .set(field(Venue::getCity), "Nantes")
+                .set(field(Venue::getName), "Trempo")
                 .generate(field(Venue::getLng), gen -> gen.doubles().range(-90.0000000, 90.0000000))
                 .generate(field(Venue::getLat), gen -> gen.doubles().range(-180.0000000, 180.0000000))
-                .set(field(Venue::getStreet), "Boulevard Léon-Bureau")
-                .set(field(Venue::getName), "Trempo")
-                .set(field(Venue::getCountry), "FR").create();
+                .set(field(Venue::getAddress), "6 Boulevard Léon-Bureau").create();
         logger.debug(fakeVenue.toString());
     }
 }

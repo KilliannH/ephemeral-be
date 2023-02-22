@@ -1,7 +1,5 @@
 package com.killiann.ephemeral.models;
 
-import net.bytebuddy.asm.Advice;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +14,7 @@ public class Venue {
     private String address;
     private String name;
     @ManyToOne()
-    @JoinColumn(name = "venues", nullable = false)
+    @JoinColumn(name = "location")
     private Location location;
 
     @OneToMany(mappedBy = "venue")

@@ -37,7 +37,7 @@ public class UserModel {
     private Set<Conversation> conversations = new HashSet<>();
 
     @ManyToOne()
-    @JoinColumn(name = "users")
+    @JoinColumn(name = "preferredLocation")
     private Location preferredLocation;
 
     public UserModel() {}

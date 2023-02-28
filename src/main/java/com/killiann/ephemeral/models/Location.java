@@ -12,7 +12,7 @@ public class Location {
     private Double lng;
     private Double lat;
     private String city;
-    private Integer zipcode;
+    private Long zipcode;
     private String country;
 
     @OneToMany(mappedBy = "location")
@@ -23,7 +23,7 @@ public class Location {
 
     /* Default constructor */
     public Location() {}
-    public Location(Double lng, Double lat, String city, Integer zipcode, String country) {
+    public Location(Double lng, Double lat, String city, Long zipcode, String country) {
         this.lng = lng;
         this.lat = lat;
         this.city = city;
@@ -51,9 +51,9 @@ public class Location {
         this.lat = lat;
     }
 
-    public Integer getZipcode() { return this.zipcode; }
+    public Long getZipcode() { return this.zipcode; }
 
-    public void setZipcode(Integer zipcode) { this.zipcode = zipcode; }
+    public void setZipcode(Long zipcode) { this.zipcode = zipcode; }
 
     public String getCity() {
         return city;

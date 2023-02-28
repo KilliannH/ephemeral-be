@@ -1,5 +1,7 @@
 package com.killiann.ephemeral.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +15,7 @@ public class Venue {
     private Double lat;
     private String address;
     private String name;
+    @JsonIgnoreProperties({"venues", "users"})
     @ManyToOne()
     @JoinColumn(name = "location")
     private Location location;

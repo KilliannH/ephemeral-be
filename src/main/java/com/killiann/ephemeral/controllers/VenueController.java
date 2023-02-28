@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -41,6 +42,12 @@ public class VenueController {
     Venue one(@PathVariable Long id) {
         return venueRepository.findById(id)
                 .orElseThrow(() -> new VenueNotFoundException(id));
+    }
+
+    @GetMapping("/venues/location/{locationId}")
+    Set<Venue> byLocationId(@PathVariable Long locationId) {
+        return venueRepository.findAllByLocationId(locationId)
+                .orElseThrow(() -> new VenueNotFoundException(locationId));
     }
 
     @PostMapping("/venues")
@@ -77,6 +84,9 @@ public class VenueController {
     Venue removeLocation(@PathVariable Long id, @PathVariable Long locationId) {
         return venueRepository.findById(id)
                 .map(venue -> {
+                    // no need for location here,
+                    // we just check if it doesn't exist
+                    // just throw and do nothing
                     Location location = locationRepository.findById(locationId)
                             .orElseThrow(() -> new LocationNotFoundException(locationId));
                     venue.setLocation(null);

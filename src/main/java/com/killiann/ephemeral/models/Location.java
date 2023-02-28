@@ -1,5 +1,7 @@
 package com.killiann.ephemeral.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +17,7 @@ public class Location {
     private Long zipcode;
     private String country;
 
+    @JsonIgnoreProperties({"location"})
     @OneToMany(mappedBy = "location")
     private Set<Venue> venues = new HashSet<>();
 

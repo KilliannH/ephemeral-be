@@ -12,3 +12,6 @@ spring.jpa.hibernate.ddl-auto=update
 token.secret=secret
 application.name=appName
 facebook.apiVersion=v1.0
+
+#swagger
+spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER

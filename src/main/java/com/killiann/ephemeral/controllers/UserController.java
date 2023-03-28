@@ -43,7 +43,6 @@ public class UserController {
                     userModel.setUsername(newUserModel.getUsername());
                     userModel.setPassword(newUserModel.getPassword());
                     userModel.setEmail(newUserModel.getEmail());
-                    userModel.setRole(newUserModel.getRole());
                     return userRepository.save(userModel);
                 })
                 .orElseThrow(() -> new UserNotFoundException(id));

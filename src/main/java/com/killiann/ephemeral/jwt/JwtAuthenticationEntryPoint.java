@@ -1,4 +1,4 @@
-package com.killiann.ephemeral.jwtutils;
+package com.killiann.ephemeral.jwt;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

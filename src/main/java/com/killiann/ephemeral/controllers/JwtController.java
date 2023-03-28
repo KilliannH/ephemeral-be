@@ -1,33 +1,32 @@
 package com.killiann.ephemeral.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.killiann.ephemeral.helpers.CaesarCipher;
-import com.killiann.ephemeral.jwtutils.JwtUserDetailsService;
-import com.killiann.ephemeral.jwtutils.TokenManager;
+import com.killiann.ephemeral.utils.JwtUtil;
+import com.killiann.ephemeral.jwt.UserDetailsImpl;
 import com.killiann.ephemeral.models.*;
+import com.killiann.ephemeral.payloads.LoginRequest;
+import com.killiann.ephemeral.payloads.LoginResponse;
 import com.killiann.ephemeral.payloads.MessageResponse;
 import com.killiann.ephemeral.payloads.SignupRequest;
 import com.killiann.ephemeral.payloads.errors.GenericError;
 import com.killiann.ephemeral.repositories.RoleRepository;
 import com.killiann.ephemeral.repositories.UserRepository;
-import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
 @CrossOrigin
 public class JwtController {
     private static final Logger logger = LoggerFactory.getLogger(JwtController.class);
@@ -40,10 +39,34 @@ public class JwtController {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private TokenManager tokenManager;
+    private JwtUtil jwtUtil;
 
-    @Value("${application.name}")
-    private String appName;
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
+        Optional<UserModel> optUser = userRepository.findByEmail(loginRequest.getEmail());
+        UserModel connUser;
+        if(optUser.isEmpty()) {
+            throw new AuthenticationCredentialsNotFoundException("Bad credentials");
+        }
+        connUser = optUser.get();
+
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(connUser.getUsername(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        String jwtToken = jwtUtil.generateJwtToken(userDetails);
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok()
+                .body(new LoginResponse(jwtToken, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -61,7 +84,7 @@ public class JwtController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
 
-        Set<String> strRoles = signUpRequest.getRole();
+        Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
@@ -74,12 +97,12 @@ public class JwtController {
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
-                    case "admin" -> {
+                    case "ROLE_ADMIN" -> {
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role not found."));
                         roles.add(adminRole);
                     }
-                    case "mod" -> {
+                    case "ROLE_MODERATOR" -> {
                         Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
                                 .orElseThrow(() -> new RuntimeException("Error: Role not found."));
                         roles.add(modRole);

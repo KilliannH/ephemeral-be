@@ -19,7 +19,6 @@ public class UserModel {
     private String password;
     private String email;
     private String imageUrl;
-    private String role;
 
     @OneToMany(mappedBy = "owner")
     private Set<Event> ownedEvents = new HashSet<>();
@@ -52,13 +51,6 @@ public class UserModel {
     private Set<Role> roles = new HashSet<>();
 
     public UserModel() {}
-
-    public UserModel(String username, String email, String imageUrl, String role) {
-        this.username = username;
-        this.email = email;
-        this.imageUrl = imageUrl;
-        this.role = role;
-    }
 
     public UserModel(String username, String email, String password) {
         this.username = username;
@@ -101,15 +93,6 @@ public class UserModel {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
 
     public Set<Event> getOwnedEvents() {
         return ownedEvents;
@@ -165,7 +148,6 @@ public class UserModel {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", role='" + role + '\'' +
                 '}';
     }
 }

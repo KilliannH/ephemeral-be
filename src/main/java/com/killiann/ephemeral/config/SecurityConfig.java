@@ -1,7 +1,7 @@
 package com.killiann.ephemeral.config;
 
-import com.killiann.ephemeral.jwtutils.JwtAuthenticationEntryPoint;
-import com.killiann.ephemeral.jwtutils.JwtFilter;
+import com.killiann.ephemeral.jwt.JwtAuthenticationEntryPoint;
+import com.killiann.ephemeral.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,8 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 // .antMatchers("/**/login/**").permitAll()
-                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-                .antMatchers("/**/authenticate/**").permitAll()
+                .antMatchers("/signup", "/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)

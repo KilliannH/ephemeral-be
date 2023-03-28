@@ -10,4 +10,4 @@ spring.jpa.hibernate.ddl-auto=update
 
 #custom properties
 token.secret=secret
-application.name=appName
+token.exp=100000

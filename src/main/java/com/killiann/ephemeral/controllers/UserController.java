@@ -35,19 +35,13 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    @GetMapping("/users/facebookId/{facebookid}")
-    UserModel one(@PathVariable String facebookid) {
-        return userRepository.findByFacebookId(facebookid)
-                .orElseThrow(() -> new UserNotFoundException(facebookid));
-    }
-
     @PutMapping("/users/{id}")
     UserModel replaceUser(@RequestBody UserModel newUserModel, @PathVariable Long id) {
 
         return userRepository.findById(id)
                 .map(userModel -> {
                     userModel.setUsername(newUserModel.getUsername());
-                    userModel.setFacebookId(newUserModel.getFacebookId());
+                    userModel.setPassword(newUserModel.getPassword());
                     userModel.setEmail(newUserModel.getEmail());
                     userModel.setRole(newUserModel.getRole());
                     return userRepository.save(userModel);

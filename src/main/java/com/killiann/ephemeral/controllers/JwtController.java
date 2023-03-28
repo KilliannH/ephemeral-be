@@ -3,10 +3,13 @@ package com.killiann.ephemeral.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.killiann.ephemeral.helpers.CaesarCipher;
-import com.killiann.ephemeral.helpers.FbUtils;
 import com.killiann.ephemeral.jwtutils.JwtUserDetailsService;
 import com.killiann.ephemeral.jwtutils.TokenManager;
 import com.killiann.ephemeral.models.*;
+import com.killiann.ephemeral.payloads.MessageResponse;
+import com.killiann.ephemeral.payloads.SignupRequest;
+import com.killiann.ephemeral.payloads.errors.GenericError;
+import com.killiann.ephemeral.repositories.RoleRepository;
 import com.killiann.ephemeral.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
@@ -16,12 +19,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -31,7 +34,9 @@ public class JwtController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private JwtUserDetailsService userDetailsService;
+    private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder encoder;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -40,104 +45,57 @@ public class JwtController {
     @Value("${application.name}")
     private String appName;
 
-    @Value("${facebook.apiVersion}")
-    private String apiVersion;
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<JwtResponseModel> signIn(@RequestBody TempModel response) throws IOException {
-        Optional<Claims> optClaims;
-        Optional<JwtResponseModel> optJwtResponseModel = Optional.empty();
-        Optional<FbAuthResponse> optFbAuthResponse;
-        Optional<FbUserInfoResponse> optFbUserInfoResponse = Optional.empty();
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest().body(new GenericError("/signup", "Bad Request", "Username is already in use", 400));
+        }
 
-        String jwtToken = null;
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.badRequest().body(new GenericError("/signup", "Bad Request", "Email is already in use", 400));
+        }
 
-        optClaims = Optional.ofNullable(tokenManager.getClaimsFromToken(response.accessToken, true));
+        // Create new user
+        UserModel user = new UserModel(signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()));
 
-        if(optClaims.isPresent()) {
-            Claims claims = optClaims.get();
-            String issuer = claims.getIssuer();
-            if(!issuer.equals(appName)) {
-                throw new Error("Unrecognized token");
+        Set<String> strRoles = signUpRequest.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles == null) {
+            Optional<Role> userRoleOpt = roleRepository.findByName(ERole.ROLE_USER);
+            if(!userRoleOpt.isPresent()) {
+                return ResponseEntity.status(500).body(new GenericError("/signup", "Server error", "Role not found", 500));
             }
-            Gson g = new Gson();
-            optFbAuthResponse = Optional.ofNullable(g.fromJson(claims.getSubject(), FbAuthResponse.class));
-            if(optFbAuthResponse.isPresent()) {
-                FbAuthResponse fbAuthResponse = optFbAuthResponse.get();
-                // salts should not be hardcoded (4)
-                String decodedFacebookId = CaesarCipher.decrypt(fbAuthResponse.getFacebookId(), 4);
-                fbAuthResponse.setFacebookId(decodedFacebookId);
-
-                // check if user exists
-                Optional<UserModel> userByFacebookId = userRepository.findByFacebookId(fbAuthResponse.getFacebookId());
-
-                // get his info from Facebook GraphQL if it doesn't exist
-                if(!userByFacebookId.isPresent()) {
-                    optFbUserInfoResponse = FbUtils.getUserInfo(fbAuthResponse.getAccessToken(), apiVersion);
-                }
-                // check if user exists
-                UserModel connUser = null;
-                UserDetails userDetails = null;
-
-                if(userByFacebookId.isPresent()) {
-                    userDetails = userDetailsService.loadUserByFacebookId(fbAuthResponse.getFacebookId());
-                    connUser = userByFacebookId.get();
-                    FbUserInfoResponse fbUserInfoResponse = response.userInfos;
-
-                        HashMap<String, String> toUpdate = new HashMap<>();
-
-                    // TODO - handle this: this always true because facebook returns a new hash for every login
-                    if(!Objects.equals(connUser.getImageUrl(), fbUserInfoResponse.imageUrl)) {
-                            toUpdate.put("imageUrl", fbUserInfoResponse.imageUrl);
-                        }
-
-                        if(!Objects.equals(connUser.getUsername(), fbUserInfoResponse.name)) {
-                            toUpdate.put("name", fbUserInfoResponse.name);
-                        }
-
-                        if(!Objects.equals(connUser.getEmail(), fbUserInfoResponse.email)) {
-                            toUpdate.put("email", fbUserInfoResponse.email);
-                        }
-
-                        if(!toUpdate.isEmpty()) {
-                            // update what is needed to update
-                            if(toUpdate.containsKey("name")) {
-                                connUser.setUsername(toUpdate.get("name"));
-                            }
-                            if(toUpdate.containsKey("email")) {
-                                connUser.setEmail(toUpdate.get("email"));
-                            }
-                            if(toUpdate.containsKey("imageUrl")) {
-                                connUser.setImageUrl(toUpdate.get("imageUrl"));
-                            }
-                            userRepository.save(connUser);
-                        }
-                } else {
-                    // a new user is created
-                    connUser = new UserModel();
-                    if(optFbUserInfoResponse.isPresent()) {
-                        FbUserInfoResponse userInfoResponse = optFbUserInfoResponse.get();
-                        connUser.setFacebookId(fbAuthResponse.getFacebookId());
-                        connUser.setUsername(userInfoResponse.name);
-                        connUser.setRole("user");
-                        connUser.setEmail(userInfoResponse.email);
-                        JsonObject pictureData = userInfoResponse.picture.getAsJsonObject("data");
-                        String imageUrl = pictureData.get("url").getAsString();
-                        connUser.setImageUrl(imageUrl);
-
-                        userDetails = userDetailsService.loadNewUser(connUser);
-
-                        // save it
-                        userRepository.save(connUser);
+            Role userRole = userRoleOpt.get();
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin" -> {
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+                        roles.add(adminRole);
+                    }
+                    case "mod" -> {
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+                        roles.add(modRole);
+                    }
+                    default -> {
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+                        roles.add(userRole);
                     }
                 }
-
-                if(userDetails != null) {
-                    jwtToken = tokenManager.generateJwtToken(userDetails, connUser.getFacebookId());
-                }
-                return ResponseEntity.ok(new JwtResponseModel(jwtToken, connUser));
-            }
+            });
         }
-        return ResponseEntity.of(optJwtResponseModel);
+
+        user.setRoles(roles);
+        userRepository.save(user);
+
+        return ResponseEntity.status(201).body(new MessageResponse("User registered successfully"));
     }
 }

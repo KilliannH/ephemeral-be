@@ -7,6 +7,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<UserModel, Long> {
     Optional<UserModel> findByUsername(String username);
-    UserModel findByEmail(String email);
-    Optional<UserModel> findByFacebookId(String facebookId);
+
+    Boolean existsByUsername(String username);
+
+    Optional<UserModel> findByEmail(String email);
+    Boolean existsByEmail(String email);
 }

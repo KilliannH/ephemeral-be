@@ -18,14 +18,6 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserDetails loadUserByFacebookId(String facebookId) throws UsernameNotFoundException {
-        Optional<UserModel> user = userRepository.findByFacebookId(facebookId);
-        if (!user.isPresent()) {
-            throw new UsernameNotFoundException("User not found with facebookId: " + facebookId);
-        }
-        return new User(user.get().getUsername(), "", new ArrayList<>());
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserModel> user = userRepository.findByUsername(username);

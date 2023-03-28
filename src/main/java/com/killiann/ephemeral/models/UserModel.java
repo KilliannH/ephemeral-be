@@ -4,14 +4,19 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "user")
+@Entity()
+@Table(name = "user",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
+})
 public class UserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String facebookId;
     private String username;
+    private String password;
     private String email;
     private String imageUrl;
     private String role;
@@ -40,26 +45,29 @@ public class UserModel {
     @JoinColumn(name = "preferredLocation")
     private Location preferredLocation;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
     public UserModel() {}
 
-    public UserModel(String username, String facebookId, String email, String imageUrl, String role) {
+    public UserModel(String username, String email, String imageUrl, String role) {
         this.username = username;
-        this.facebookId = facebookId;
         this.email = email;
         this.imageUrl = imageUrl;
         this.role = role;
     }
 
+    public UserModel(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
     public Long getId() {
         return id;
-    }
-
-    public String getFacebookId() {
-        return facebookId;
-    }
-
-    public void setFacebookId(String facebookId) {
-        this.facebookId = facebookId;
     }
 
     public String getUsername() {
@@ -68,6 +76,14 @@ public class UserModel {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
@@ -134,11 +150,18 @@ public class UserModel {
         this.preferredLocation = preferredLocation;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
-                "facebookId='" + facebookId + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +

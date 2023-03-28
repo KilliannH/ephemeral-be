@@ -2,7 +2,6 @@ package com.killiann.ephemeral.config;
 
 import com.killiann.ephemeral.jwtutils.JwtAuthenticationEntryPoint;
 import com.killiann.ephemeral.jwtutils.JwtFilter;
-import io.swagger.models.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
